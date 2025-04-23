@@ -245,7 +245,7 @@ async function checkMemorialExists(memorialId) {
         const docRef = db.collection('memorials').doc(memorialId);
         const docSnap = await docRef.get();
 
-        if (docSnap.exists()) {
+        if (docSnap.exists) { // <-- LÍNEA CORREGIDA (sin paréntesis)
             console.log("Memorial encontrado:", memorialId);
             populateMemorialView(docSnap.data());
             showView('memorial-view');
