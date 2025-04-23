@@ -1,0 +1,4 @@
+Tu Usuario de GitHub: Para la baseUrl.
+Credenciales Firebase: El objeto firebaseConfig completo.
+Credenciales Cloudinary: Cloud name y Upload preset name.
+Correo de Admin:  (ya lo proporcionaste).
