@@ -1,4 +1,9 @@
-Tu Usuario de GitHub: Para la baseUrl.
-Credenciales Firebase: El objeto firebaseConfig completo.
-Credenciales Cloudinary: Cloud name y Upload preset name.
-Correo de Admin:  (ya lo proporcionaste).
+Usuario de GitHub: Huguitito. La web que ya esta creada es: https://huguitito.github.io/recuerdo/
+Credenciales Firebase: apiKey: "AIzaSyCcWUjZu5hervImonJaN0z7paVbSlTvEeg",
+    authDomain: "recuerdos-255d7.firebaseapp.com",
+    projectId: "recuerdos-255d7",
+    storageBucket: "recuerdos-255d7.firebasestorage.app",
+    messagingSenderId: "211228732415",
+    appId: "1:211228732415:web:9ee28892bcdca35f3ed5ca"
+Credenciales Cloudinary: Cloud name: dnbodjnkn y Upload preset name: recuerdo.
+Correo de Admin:  huguitito@gmail.com.
