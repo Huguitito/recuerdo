@@ -109,6 +109,22 @@ a:hover {
     animation: spin 1s linear infinite;
     margin: 0 auto 15px auto;
 }
+/* Spinner para botones */
+.spinner-btn {
+    display: inline-block;
+    width: 1em; /* Ajustar al tamaño de la fuente */
+    height: 1em;
+    vertical-align: -0.125em; /* Alinear con el texto */
+    border: .2em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border .75s linear infinite;
+    margin-right: .5em;
+}
+@keyframes spinner-border {
+  to { transform: rotate(360deg); }
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -176,11 +192,17 @@ textarea:focus {
     margin-right: 8px;
 }
 
+.btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .btn-primary {
     background-color: var(--gold-color);
     color: var(--bg-color);
 }
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
     background-color: #e6c300; /* Dorado más oscuro */
     transform: translateY(-1px);
 }
@@ -189,7 +211,7 @@ textarea:focus {
     background-color: var(--border-color);
     color: var(--text-color);
 }
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
     background-color: #555555;
     transform: translateY(-1px);
 }
@@ -198,7 +220,7 @@ textarea:focus {
     background-color: var(--error-color);
     color: var(--text-color);
 }
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
     background-color: #c82333;
     transform: translateY(-1px);
 }
@@ -253,9 +275,10 @@ textarea:focus {
 }
 
 /* Vista de Registro */
-#photo-preview {
+.photo-preview-container {
     margin-top: 10px;
     text-align: center;
+    min-height: 150px; /* Para evitar saltos de layout */
 }
 #photo-preview img {
     max-width: 150px;
@@ -271,6 +294,7 @@ textarea:focus {
 }
 .small-text {
     font-size: 0.85em;
+    word-break: break-all; /* Para URLs largas */
 }
 
 /* Vista Memorial */
@@ -331,7 +355,7 @@ textarea:focus {
     text-align: left;
 }
 .admin-section {
-    background-color: var(--bg-color);
+    background-color: var(--bg-color); /* Ligeramente diferente al fondo principal */
     padding: 20px;
     margin-bottom: 20px;
     border: 1px solid var(--border-color);
@@ -345,7 +369,7 @@ textarea:focus {
 }
 
 /* Generador QR en Admin */
-#admin-qr-code-display {
+.qr-code-container {
     text-align: center;
     margin-top: 1rem;
     background: white; /* Fondo blanco para el QR */
@@ -353,7 +377,7 @@ textarea:focus {
     display: inline-block; /* Ajustar al tamaño del QR */
     border-radius: var(--border-radius);
 }
-#admin-qr-code-display img {
+.qr-code-container img {
     display: block; /* Evitar espacio extra bajo la imagen */
 }
 code {
@@ -389,6 +413,7 @@ code {
 .memorial-item-info {
     flex-grow: 1;
     margin-right: 15px;
+    word-break: break-word; /* Evitar que nombres largos rompan layout */
 }
 .memorial-item-id {
     font-size: 0.8em;
@@ -397,6 +422,7 @@ code {
 }
 .memorial-item-actions button {
     margin-left: 5px;
+    flex-shrink: 0; /* Evitar que los botones se achiquen */
 }
 
 /* Modal de Edición */
@@ -412,17 +438,20 @@ code {
     display: flex; /* Usar flexbox para centrar */
     align-items: center; /* Centrar verticalmente */
     justify-content: center; /* Centrar horizontalmente */
+    padding: 15px; /* Padding para evitar que toque los bordes en pantallas pequeñas */
 }
 .modal-content {
     background-color: var(--card-bg);
     padding: 30px;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    width: 90%;
-    max-width: 600px; /* Ancho máximo del modal */
+    width: 100%; /* Adaptarse al padding del modal */
+    max-width: 650px; /* Ancho máximo del modal */
     position: relative;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     animation: slideIn 0.3s ease-out;
+    max-height: 90vh; /* Limitar altura máxima */
+    overflow-y: auto; /* Scroll interno si es necesario */
 }
 .close-modal-btn {
     color: var(--secondary-text-color);
@@ -449,6 +478,40 @@ code {
     border: 2px solid var(--border-color);
     margin-bottom: 10px;
     display: block;
+    object-fit: cover;
+}
+
+/* Estilos para la información QR dentro del Modal de Edición */
+.qr-info-in-modal {
+    margin-top: 2rem; /* Espacio antes de la sección QR */
+    margin-bottom: 1.5rem; /* Espacio después */
+    padding: 15px;
+    background-color: var(--bg-color); /* Fondo un poco diferente para destacar */
+    border-top: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+.qr-info-in-modal h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: var(--gold-color);
+    border-bottom: none;
+}
+.qr-info-in-modal p {
+    margin-bottom: 0.5rem;
+    word-break: break-all; /* Para que las URLs largas no rompan el layout */
+}
+#edit-modal-qr-code {
+    background: white; /* Fondo blanco para el QR */
+    padding: 10px;
+    display: inline-block; /* Ajustar al tamaño del QR */
+    border-radius: var(--border-radius);
+    margin: 0.5rem auto 0 auto; /* Centrar el contenedor QR */
+    text-align: center;
+}
+#edit-modal-qr-code img {
+    display: block; /* Evitar espacio extra bajo la imagen */
+    margin: 0 auto; /* Centrar la imagen si el contenedor es más grande */
 }
 
 /* Footer */
@@ -464,6 +527,14 @@ footer {
 /* Iconos */
 .icon-gold { color: var(--gold-color); margin-right: 8px;}
 .icon-red { color: var(--error-color); margin-right: 8px;}
+
+/* Helpers */
+.text-center {
+    text-align: center;
+}
+.mt-3 {
+    margin-top: 1rem; /* Ajustar valor según necesidad */
+}
 
 /* Media Queries (Ajustes para pantallas pequeñas) */
 @media (max-width: 600px) {

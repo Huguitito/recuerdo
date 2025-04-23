@@ -146,6 +146,17 @@
                              <img id="current-memorial-photo" src="placeholder.png" alt="Foto Actual" class="current-photo-preview"/>
                              <input type="file" id="edit-memorial-photo" accept="image/*">
                          </div>
+
+                         <!-- Sección QR y URL en Edición -->
+                         <div class="admin-section qr-info-in-modal">
+                             <h4><i class="fas fa-link"></i> Información del Enlace</h4>
+                             <p><strong>ID:</strong> <code id="edit-modal-memorial-id-display"></code></p>
+                             <p><strong>URL:</strong> <span id="edit-modal-memorial-url" class="small-text"></span></p>
+                             <p class="text-center mt-3"><strong>Código QR Actual:</strong></p>
+                             <div id="edit-modal-qr-code" class="qr-code-container"></div>
+                         </div>
+                         <!-- Fin Sección QR y URL -->
+
                          <div id="edit-error" class="error-message"></div>
                          <div id="edit-success" class="success-message"></div>
                          <button type="submit" id="edit-submit-btn" class="btn btn-primary">
