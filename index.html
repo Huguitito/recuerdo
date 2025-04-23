@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Recuerdo - Memoria Viva</title>
+    <!-- Google Fonts (Poppins) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome (para iconos) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Estilos CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- Vista: Cargando -->
+        <div id="loading-view" class="view active-view">
+            <div class="spinner"></div>
+            <p>Cargando Recuerdo...</p>
+        </div>
+
+        <!-- Vista: Registrar Nuevo Memorial (cuando el ID no existe) -->
+        <div id="register-view" class="view">
+            <h2><i class="fas fa-pencil-alt icon-gold"></i> Registrar Nuevo Recuerdo</h2>
+            <p class="info-text">Estás a punto de crear un nuevo memorial. Completa los datos con cuidado.</p>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="memorial-name">Nombre Completo *</label>
+                    <input type="text" id="memorial-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="memorial-dob">Fecha de Nacimiento</label>
+                    <input type="date" id="memorial-dob">
+                </div>
+                <div class="form-group">
+                    <label for="memorial-dod">Fecha de Fallecimiento</label>
+                    <input type="date" id="memorial-dod">
+                </div>
+                <div class="form-group">
+                    <label for="memorial-bio">Biografía / Dedicatoria</label>
+                    <textarea id="memorial-bio" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="memorial-photo">Foto Principal *</label>
+                    <input type="file" id="memorial-photo" accept="image/*" required>
+                    <div id="photo-preview" class="photo-preview-container">
+                        <!-- La vista previa de la imagen aparecerá aquí -->
+                    </div>
+                </div>
+                <div class="alert warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Importante:</strong> Una vez guardado, no podrás editar esta información tú mismo. Contacta con Memoria Viva para cambios. Revisa todo bien.
+                </div>
+                <div id="register-error" class="error-message"></div>
+                <button type="submit" id="register-submit-btn" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar Recuerdo
+                </button>
+            </form>
+        </div>
+
+        <!-- Vista: Mostrar Memorial Existente -->
+        <div id="memorial-view" class="view">
+            <div class="memorial-content">
+                <img id="public-memorial-photo" src="placeholder.png" alt="Foto del Recuerdo" class="memorial-photo">
+                <h2 id="public-memorial-name" class="memorial-name"></h2>
+                <p id="public-memorial-dates" class="memorial-dates"></p>
+                <blockquote id="public-memorial-bio" class="memorial-bio"></blockquote>
+            </div>
+             <button id="edit-request-btn" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Solicitar Edición</button>
+        </div>
+
+        <!-- Vista: Login de Administrador -->
+        <div id="admin-login-view" class="view">
+            <h2><i class="fas fa-user-shield icon-gold"></i> Acceso Administrador</h2>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="admin-email">Email</label>
+                    <input type="email" id="admin-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Contraseña</label>
+                    <input type="password" id="admin-password" required>
+                </div>
+                <div id="login-error" class="error-message"></div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
+            </form>
+             <p class="info-text small-text" style="margin-top: 20px;">Si eres un visitante, por favor escanea un código QR válido.</p>
+        </div>
+
+        <!-- Vista: Panel de Administración -->
+        <div id="admin-panel-view" class="view">
+            <div class="admin-header">
+                <h2><i class="fas fa-tools icon-gold"></i> Panel de Administración</h2>
+                <button id="admin-logout-btn" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</button>
+            </div>
+
+            <!-- Sección Generador de QR -->
+            <div class="admin-section">
+                <h3><i class="fas fa-qrcode"></i> Generar Nuevo QR para Placa</h3>
+                <button id="generate-qr-btn" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Generar Nuevo</button>
+                <div id="qr-result" style="display: none; margin-top: 15px;">
+                    <p><strong>ID Único Generado:</strong> <code id="new-memorial-id"></code></p>
+                    <p><strong>URL Completa (para QR):</strong> <span id="new-memorial-url" class="small-text"></span></p>
+                    <p class="text-center mt-3"><strong>Código QR (Clic derecho > Guardar Imagen):</strong></p>
+                    <div id="admin-qr-code-display" class="qr-code-container"></div>
+                </div>
+            </div>
+
+            <!-- Sección Gestión de Memoriales -->
+            <div class="admin-section">
+                <h3><i class="fas fa-list-alt"></i> Memoriales Existentes</h3>
+                <div id="admin-memorials-list" class="memorial-list-container">
+                    <p>Cargando lista...</p>
+                    <!-- La lista se llenará dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Modal/Formulario para Editar Memorial (Inicialmente Oculto) -->
+            <div id="edit-modal" class="modal" style="display: none;">
+                 <div class="modal-content">
+                     <span class="close-modal-btn">&times;</span>
+                     <h3><i class="fas fa-edit icon-gold"></i> Editar Memorial</h3>
+                     <form id="edit-form">
+                         <input type="hidden" id="edit-memorial-id"> <!-- Guardar el ID que se edita -->
+                         <div class="form-group">
+                             <label for="edit-memorial-name">Nombre Completo *</label>
+                             <input type="text" id="edit-memorial-name" required>
+                         </div>
+                         <div class="form-group">
+                             <label for="edit-memorial-dob">Fecha de Nacimiento</label>
+                             <input type="date" id="edit-memorial-dob">
+                         </div>
+                         <div class="form-group">
+                            <label for="edit-memorial-dod">Fecha de Fallecimiento</label>
+                            <input type="date" id="edit-memorial-dod">
+                         </div>
+                         <div class="form-group">
+                             <label for="edit-memorial-bio">Biografía / Dedicatoria</label>
+                             <textarea id="edit-memorial-bio" rows="4"></textarea>
+                         </div>
+                         <div class="form-group">
+                             <label for="edit-memorial-photo">Cambiar Foto Principal (Opcional)</label>
+                             <img id="current-memorial-photo" src="placeholder.png" alt="Foto Actual" class="current-photo-preview"/>
+                             <input type="file" id="edit-memorial-photo" accept="image/*">
+                         </div>
+                         <div id="edit-error" class="error-message"></div>
+                         <div id="edit-success" class="success-message"></div>
+                         <button type="submit" id="edit-submit-btn" class="btn btn-primary">
+                             <i class="fas fa-save"></i> Guardar Cambios
+                         </button>
+                     </form>
+                 </div>
+            </div>
+
+        </div> <!-- Fin Admin Panel View -->
+
+        <!-- Vista: Error General -->
+        <div id="error-view" class="view">
+            <h2><i class="fas fa-exclamation-circle icon-red"></i> Ocurrió un Error</h2>
+            <p id="error-message" class="error-message-lg">Mensaje de error aquí.</p>
+            <button id="back-to-start-btn" class="btn btn-secondary"><i class="fas fa-home"></i> Volver al Inicio</button>
+        </div>
+
+    </div><!-- Fin App Container -->
+
+    <footer>
+        Recuerdo - Un servicio de Memoria Viva por Huguitito para Corte Laser 2025
+        <span id="admin-login-link-container" style="margin-left: 15px;">
+            <a href="#" id="admin-login-link">Admin</a>
+        </span>
+    </footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <!-- Librería para generar QR (Necesaria para el admin) -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+    <!-- Tu Lógica de Aplicación -->
+    <script src="app.js"></script>
+</body>
+</html>

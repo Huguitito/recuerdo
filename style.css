@@ -1,0 +1,486 @@
+/* style.css */
+
+/* Import Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    --gold-color: #FFD700; /* Amarillo dorado */
+    --light-gold-color: #fffacd; /* Un dorado más pálido para fondos leves */
+    --text-color: #FFFFFF; /* Blanco */
+    --secondary-text-color: #cccccc; /* Gris claro para texto secundario */
+    --bg-color: #000000; /* Negro */
+    --card-bg: #1a1a1a; /* Gris muy oscuro para inputs/cards */
+    --border-color: #444444; /* Borde sutil gris oscuro */
+    --error-color: #dc3545; /* Rojo para errores */
+    --success-color: #28a745; /* Verde para éxito */
+    --border-radius: 0.3rem; /* Bordes ligeramente redondeados */
+    --box-shadow: 0 4px 10px rgba(255, 215, 0, 0.1); /* Sombra dorada muy sutil */
+}
+
+/* Reset Básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 15px;
+}
+
+.app-container {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 25px;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    flex-grow: 1;
+}
+
+h2, h3 {
+    color: var(--gold-color);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+h3 {
+    font-size: 1.4rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: left;
+    border-bottom: none;
+}
+
+p {
+    margin-bottom: 1rem;
+    color: var(--secondary-text-color);
+}
+
+a {
+    color: var(--gold-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Vistas */
+.view {
+    display: none; /* Ocultar todas las vistas por defecto */
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.active-view {
+    display: block; /* Mostrar solo la vista activa */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Spinner de Carga */
+#loading-view {
+    text-align: center;
+    padding: 50px 0;
+}
+.spinner {
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--gold-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Formularios */
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    color: var(--secondary-text-color);
+    margin-bottom: 0.4rem;
+    font-size: 0.9em;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+textarea,
+input[type="file"] {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+}
+
+input[type="file"] {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--gold-color);
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
+}
+
+/* Botones */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    font-size: 1rem;
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn-primary {
+    background-color: var(--gold-color);
+    color: var(--bg-color);
+}
+.btn-primary:hover {
+    background-color: #e6c300; /* Dorado más oscuro */
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}
+.btn-secondary:hover {
+    background-color: #555555;
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background-color: var(--error-color);
+    color: var(--text-color);
+}
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+/* Mensajes */
+.error-message, .error-message-lg {
+    color: var(--error-color);
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9em;
+    text-align: center;
+}
+.error-message-lg {
+    font-size: 1em;
+    padding: 1rem;
+}
+
+.success-message {
+    color: var(--success-color);
+    background-color: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin: 1.5rem 0;
+    border: 1px solid transparent;
+}
+.alert.warning {
+    color: #856404; /* Texto oscuro para contraste en fondo claro */
+    background-color: var(--light-gold-color);
+    border-color: #ffeeba;
+}
+.alert i {
+    margin-right: 10px;
+}
+
+/* Vista de Registro */
+#photo-preview {
+    margin-top: 10px;
+    text-align: center;
+}
+#photo-preview img {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+    object-fit: cover;
+}
+.info-text {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.95em;
+}
+.small-text {
+    font-size: 0.85em;
+}
+
+/* Vista Memorial */
+.memorial-content {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.memorial-photo {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid var(--gold-color);
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+.memorial-name {
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+    border: none; /* Quitar borde inferior del h2 aquí */
+    padding: 0;
+}
+.memorial-dates {
+    font-size: 1rem;
+    color: var(--secondary-text-color);
+    margin-bottom: 1.5rem;
+}
+.memorial-bio {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-color);
+    border-left: 3px solid var(--gold-color);
+    padding-left: 15px;
+    margin-top: 1rem;
+    text-align: left; /* Alinear bio a la izquierda */
+    font-style: italic;
+    white-space: pre-wrap; /* Respetar saltos de línea */
+}
+#edit-request-btn {
+    display: block; /* Hacer que el botón ocupe su propia línea */
+    margin: 1rem auto 0 auto; /* Centrar el botón */
+}
+
+
+/* Panel Admin */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.admin-header h2 {
+    margin: 0;
+    padding: 0;
+    border: none;
+    text-align: left;
+}
+.admin-section {
+    background-color: var(--bg-color);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+.admin-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Generador QR en Admin */
+#admin-qr-code-display {
+    text-align: center;
+    margin-top: 1rem;
+    background: white; /* Fondo blanco para el QR */
+    padding: 15px;
+    display: inline-block; /* Ajustar al tamaño del QR */
+    border-radius: var(--border-radius);
+}
+#admin-qr-code-display img {
+    display: block; /* Evitar espacio extra bajo la imagen */
+}
+code {
+    background-color: var(--border-color);
+    padding: 0.2em 0.5em;
+    border-radius: 3px;
+    font-family: monospace;
+    color: var(--gold-color);
+}
+
+/* Lista de Memoriales en Admin */
+.memorial-list-container {
+    max-height: 400px; /* Limitar altura y añadir scroll si es necesario */
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 10px;
+}
+.memorial-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+.memorial-list-item:last-child {
+    border-bottom: none;
+}
+.memorial-list-item:hover {
+    background-color: var(--card-bg);
+}
+.memorial-item-info {
+    flex-grow: 1;
+    margin-right: 15px;
+}
+.memorial-item-id {
+    font-size: 0.8em;
+    color: var(--secondary-text-color);
+    display: block;
+}
+.memorial-item-actions button {
+    margin-left: 5px;
+}
+
+/* Modal de Edición */
+.modal {
+    position: fixed; /* Posición fija respecto a la ventana */
+    z-index: 1000; /* Asegurar que esté por encima de otros elementos */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Permitir scroll si el contenido es largo */
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
+    display: flex; /* Usar flexbox para centrar */
+    align-items: center; /* Centrar verticalmente */
+    justify-content: center; /* Centrar horizontalmente */
+}
+.modal-content {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 600px; /* Ancho máximo del modal */
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s ease-out;
+}
+.close-modal-btn {
+    color: var(--secondary-text-color);
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close-modal-btn:hover,
+.close-modal-btn:focus {
+    color: var(--gold-color);
+    text-decoration: none;
+}
+@keyframes slideIn {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.current-photo-preview {
+    max-width: 80px;
+    max-height: 80px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.85em;
+    color: var(--secondary-text-color);
+}
+
+/* Iconos */
+.icon-gold { color: var(--gold-color); margin-right: 8px;}
+.icon-red { color: var(--error-color); margin-right: 8px;}
+
+/* Media Queries (Ajustes para pantallas pequeñas) */
+@media (max-width: 600px) {
+    .app-container {
+        margin: 10px auto;
+        padding: 15px;
+    }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.2rem; }
+    .btn { font-size: 0.9rem; padding: 0.6rem 1.2rem; }
+    .memorial-photo { width: 120px; height: 120px; border-width: 4px; }
+    .memorial-name { font-size: 1.5rem; }
+    .memorial-dates, .memorial-bio { font-size: 0.9rem; }
+    .modal-content { padding: 20px; }
+    .admin-header { flex-direction: column; align-items: flex-start; }
+    .admin-header .btn-danger { margin-top: 10px; }
+    .memorial-list-item { flex-direction: column; align-items: flex-start; }
+    .memorial-item-actions { margin-top: 10px; width: 100%; text-align: right; }
+    .memorial-item-actions button { margin-left: 8px; }
+}
