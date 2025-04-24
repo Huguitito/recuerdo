@@ -183,7 +183,7 @@ textarea:focus {
     font-weight: 600;
     cursor: pointer;
     text-align: center;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
     font-size: 1rem;
 }
 
@@ -195,6 +195,13 @@ textarea:focus {
     opacity: 0.65;
     cursor: not-allowed;
     transform: none;
+    background-color: var(--border-color); /* Fondo gris cuando está deshabilitado */
+    color: var(--secondary-text-color);
+}
+.btn-primary:disabled { /* Estilo específico para primario deshabilitado */
+     background-color: var(--border-color);
+     color: var(--secondary-text-color);
+     opacity: 0.65;
 }
 
 .btn-primary {
@@ -348,7 +355,7 @@ textarea:focus {
     font-style: italic;
     white-space: pre-wrap; /* Respetar saltos de línea */
 }
-/* Ocultar el botón de solicitar edición por defecto */
+/* Ocultar el botón de solicitar edición (innecesario) */
 #edit-request-btn {
    display: none;
 }
@@ -529,6 +536,165 @@ code {
     margin: 0 auto; /* Centrar la imagen si el contenedor es más grande */
 }
 
+/* Estilos para Aceptación Legal en Registro */
+.legal-acceptance {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.05); /* Fondo muy sutil */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+.form-check:last-child {
+    margin-bottom: 0;
+}
+.form-check-input {
+    width: 1.2em; /* Tamaño del checkbox */
+    height: 1.2em;
+    margin-right: 0.8em;
+    flex-shrink: 0; /* Evitar que se achique */
+    cursor: pointer;
+    appearance: none; /* Quitar estilo nativo */
+    background-color: var(--bg-color);
+    border: 1px solid var(--secondary-text-color);
+    border-radius: 3px;
+    position: relative; /* Para el pseudo-elemento check */
+    transition: background-color 0.2s, border-color 0.2s;
+    vertical-align: middle; /* Alinear mejor con el texto */
+}
+.form-check-input:checked {
+    background-color: var(--gold-color);
+    border-color: var(--gold-color);
+}
+/* Estilo para el "check" dentro del checkbox */
+.form-check-input:checked::after {
+    content: '';
+    display: block;
+    width: 0.3em;
+    height: 0.6em;
+    border: solid var(--bg-color); /* Color del check (negro sobre dorado) */
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-50%, -50%);
+    position: absolute;
+    left: 50%;
+    top: 45%; /* Ajuste fino vertical */
+}
+.form-check-label {
+    font-size: 0.9em;
+    color: var(--secondary-text-color);
+    cursor: pointer; /* Indicar que la etiqueta también es clickeable */
+    line-height: 1.4;
+    flex-grow: 1; /* Ocupar espacio restante */
+}
+.form-check-label a {
+    color: var(--gold-color);
+    text-decoration: underline;
+}
+.form-check-label a:hover {
+    color: #fff;
+}
+
+/* Estilos para Modales Legales */
+.legal-modal {
+    position: fixed;
+    z-index: 1050; /* Por encima del modal de edición si existe */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Evitar scroll del body */
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    animation: fadeInModal 0.3s ease-out;
+}
+.legal-modal-content {
+    background-color: var(--card-bg);
+    padding: 25px 30px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 700px; /* Ancho máximo para textos largos */
+    position: relative;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    max-height: 85vh; /* Limitar altura */
+    display: flex;
+    flex-direction: column; /* Para que el contenido y el botón se apilen */
+}
+.legal-modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.legal-text-content {
+    overflow-y: auto; /* Scroll interno si el texto es muy largo */
+    margin-bottom: 1.5rem; /* Espacio antes del botón cerrar */
+    flex-grow: 1; /* Ocupar espacio disponible */
+    padding-right: 10px; /* Espacio para la barra de scroll */
+    color: var(--secondary-text-color); /* Color base del texto */
+}
+.legal-text-content p {
+    margin-bottom: 1em;
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+.legal-text-content strong {
+    color: var(--text-color); /* Texto blanco para títulos */
+    display: block; /* Hacer que el strong ocupe línea propia */
+    margin-top: 0.8em; /* Espacio antes de cada sección */
+    margin-bottom: 0.3em;
+    font-weight: 600;
+}
+.legal-text-content ul, .legal-text-content ol {
+    margin-left: 20px;
+    margin-bottom: 1em;
+    padding-left: 1em;
+}
+.close-legal-modal-btn {
+    color: var(--secondary-text-color);
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px; /* Área clickeable más grande */
+    line-height: 1;
+    background: none;
+    border: none;
+}
+.close-legal-modal-btn:hover,
+.close-legal-modal-btn:focus {
+    color: var(--gold-color);
+    text-decoration: none;
+}
+/* Botón Cerrar al final */
+.legal-modal-content .btn.close-legal-modal-btn {
+    position: static; /* Anular posición absoluta del icono */
+    margin-top: auto; /* Empujar al final si hay espacio */
+    align-self: center; /* Centrar el botón */
+    display: inline-block; /* Comportamiento normal de botón */
+    font-size: 1rem; /* Tamaño normal de botón */
+    padding: 0.75rem 1.5rem; /* Padding normal */
+    font-weight: 600;
+    line-height: initial; /* Resetear line-height */
+}
+@keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
 /* Footer */
 footer {
     text-align: center;
@@ -570,4 +736,7 @@ footer {
     .memorial-list-item { flex-direction: column; align-items: flex-start; }
     .memorial-item-actions { margin-top: 10px; width: 100%; text-align: right; }
     .memorial-item-actions button { margin-left: 8px; }
+     .legal-modal-content { padding: 20px 15px; } /* Menos padding lateral en modal legal */
+     .legal-modal-content h2 { font-size: 1.3rem; }
+     .legal-text-content { font-size: 0.9rem; }
 }

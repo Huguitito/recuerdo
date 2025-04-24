@@ -54,12 +54,31 @@
                     <i class="fas fa-exclamation-triangle"></i>
                     <strong>Importante:</strong> Una vez guardado, no podrás editar esta información tú mismo. Contacta con Memoria Viva para cambios. Revisa todo bien.
                 </div>
+
+                <!-- Aceptación de Términos y Privacidad -->
+                <div class="legal-acceptance">
+                    <div class="form-check">
+                        <input type="checkbox" id="accept-terms" class="form-check-input">
+                        <label for="accept-terms" class="form-check-label">
+                            He leído y acepto los <a href="#" id="show-terms-link">Términos y Condiciones</a> *
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="accept-privacy" class="form-check-input">
+                        <label for="accept-privacy" class="form-check-label">
+                            He leído y acepto la <a href="#" id="show-privacy-link">Política de Privacidad</a> *
+                        </label>
+                    </div>
+                </div>
+                <!-- Fin Aceptación -->
+
                 <div id="register-error" class="error-message"></div>
-                <button type="submit" id="register-submit-btn" class="btn btn-primary">
+                <button type="submit" id="register-submit-btn" class="btn btn-primary" disabled> <!-- Botón deshabilitado inicialmente -->
                     <i class="fas fa-save"></i> Guardar Recuerdo
                 </button>
             </form>
-        </div>
+        </div> <!-- Fin Register View -->
+
 
         <!-- Vista: Mostrar Memorial Existente -->
         <div id="memorial-view" class="view">
@@ -69,7 +88,8 @@
                 <p id="public-memorial-dates" class="memorial-dates"></p>
                 <blockquote id="public-memorial-bio" class="memorial-bio"></blockquote>
             </div>
-             <button id="edit-request-btn" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Solicitar Edición</button>
+             <!-- El botón #edit-request-btn se oculta con CSS, no es necesario aquí -->
+             <!-- <button id="edit-request-btn" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Solicitar Edición</button> -->
         </div>
 
         <!-- Vista: Login de Administrador -->
@@ -176,6 +196,72 @@
         </div>
 
     </div><!-- Fin App Container -->
+
+    <!-- Modales para Textos Legales (fuera del .app-container principal pero dentro del body) -->
+    <div id="terms-modal" class="legal-modal" style="display: none;">
+        <div class="legal-modal-content">
+            <span class="close-legal-modal-btn" data-modal-id="terms-modal">&times;</span>
+            <h2>Términos y Condiciones de Uso</h2>
+            <div class="legal-text-content">
+                <p><strong>Última actualización: abril 2025</strong></p>
+                <p>Bienvenido a Memoria Viva, un servicio ofrecido por Corte Láser Trenque Lauquen, que permite crear perfiles conmemorativos accesibles mediante un código QR. Al utilizar este sitio web, usted acepta cumplir con los siguientes términos y condiciones:</p>
+                <p><strong>Uso del Servicio</strong><br>
+                Memoria Viva permite a los usuarios crear un perfil digital conmemorativo de personas fallecidas, incluyendo textos, imágenes y datos personales. Usted es responsable del contenido que publica.</p>
+                <p><strong>Contenido del Usuario</strong><br>
+                Al publicar contenido en Memoria Viva, usted declara tener los derechos y/o autorización para su uso. Se prohíbe subir material ofensivo, discriminatorio o que infrinja derechos de terceros. Corte Láser Trenque Lauquen se reserva el derecho de eliminar contenido inapropiado sin previo aviso.</p>
+                <p><strong>Responsabilidad</strong><br>
+                Corte Láser Trenque Lauquen no garantiza la disponibilidad continua del servicio ni se hace responsable por interrupciones, pérdida de datos o cualquier daño derivado del uso del sistema.</p>
+                <p><strong>Propiedad Intelectual</strong><br>
+                El diseño del sitio, logotipo, funcionalidades y tecnología utilizada son propiedad de Corte Láser Trenque Lauquen. Los perfiles conmemorativos creados por los usuarios son su responsabilidad exclusiva.</p>
+                <p><strong>Modificaciones</strong><br>
+                Nos reservamos el derecho a modificar estos términos en cualquier momento. Las modificaciones serán publicadas en este mismo sitio.</p>
+                <p><strong>Legislación Aplicable</strong><br>
+                Este servicio se rige por las leyes de la República Argentina.</p>
+                <p><strong>Contacto</strong><br>
+                Para cualquier duda, sugerencia o solicitud, puede comunicarse con nosotros:<br>
+                Email: cortelasertql@gmail.com<br>
+                WhatsApp: +54 9 221 314-1765<br>
+                Dirección: Castelli 143, CP 6400, Trenque Lauquen, Provincia de Buenos Aires, República Argentina<br>
+                Sitio web: www.cortelasertql.com.ar</p>
+            </div>
+            <button class="btn btn-secondary close-legal-modal-btn" data-modal-id="terms-modal">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="privacy-modal" class="legal-modal" style="display: none;">
+        <div class="legal-modal-content">
+            <span class="close-legal-modal-btn" data-modal-id="privacy-modal">&times;</span>
+            <h2>Política de Privacidad</h2>
+             <div class="legal-text-content">
+                <p><strong>Última actualización: abril 2025</strong></p>
+                <p>Esta Política de Privacidad describe cómo recopilamos, usamos y protegemos la información de los usuarios que acceden o utilizan Memoria Viva.</p>
+                <p><strong>Datos que recopilamos</strong><br>
+                Cuando usted crea un perfil conmemorativo, recopilamos:<br>
+                - Nombre completo del fallecido<br>
+                - Fechas de nacimiento y fallecimiento<br>
+                - Fotografías<br>
+                - Texto de biografía<br>
+                - Datos de contacto del usuario creador (para administración y soporte)</p>
+                <p><strong>Finalidad del uso</strong><br>
+                Usamos estos datos exclusivamente para:<br>
+                - Mostrar el perfil al escanear el código QR.<br>
+                - Brindar soporte técnico o atender consultas del usuario.<br>
+                - Fines administrativos internos relacionados con el servicio.</p>
+                <p><strong>Protección de datos</strong><br>
+                Implementamos medidas razonables para proteger la información de los usuarios. Sin embargo, no podemos garantizar una seguridad absoluta frente a accesos no autorizados.</p>
+                <p><strong>Derechos del usuario</strong><br>
+                Usted puede solicitar la corrección o eliminación de un perfil en cualquier momento contactándonos por email o WhatsApp. Tenga en cuenta que la eliminación es permanente.</p>
+                <p><strong>Uso de cookies</strong><br>
+                Este sitio puede utilizar cookies técnicas necesarias para el funcionamiento y mejora del sistema (ej. para mantener su sesión de administrador). Al usar este servicio, acepta este uso limitado de cookies esenciales.</p>
+                 <p><strong>Contacto</strong><br>
+                 Para cualquier consulta sobre esta política, puede contactarnos:<br>
+                 Email: cortelasertql@gmail.com<br>
+                 WhatsApp: +54 9 221 314-1765</p>
+             </div>
+             <button class="btn btn-secondary close-legal-modal-btn" data-modal-id="privacy-modal">Cerrar</button>
+        </div>
+    </div>
+
 
     <footer>
         Recuerdo - Un servicio de Memoria Viva por Huguitito para Corte Laser 2025

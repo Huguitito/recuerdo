@@ -1,4 +1,4 @@
-// app.js (Modificado)
+// app.js - Recuerdo - Memoria Viva
 
 // --- Configuración ---
 const firebaseConfig = {
@@ -42,6 +42,11 @@ const registerPhotoInput = document.getElementById('memorial-photo');
 const photoPreview = document.getElementById('photo-preview');
 const registerError = document.getElementById('register-error');
 const registerSubmitBtn = document.getElementById('register-submit-btn');
+// Referencias legales en registro
+const acceptTermsCheckbox = document.getElementById('accept-terms');
+const acceptPrivacyCheckbox = document.getElementById('accept-privacy');
+const showTermsLink = document.getElementById('show-terms-link');
+const showPrivacyLink = document.getElementById('show-privacy-link');
 
 const adminLoginForm = document.getElementById('admin-login-form');
 const adminEmailInput = document.getElementById('admin-email');
@@ -53,7 +58,7 @@ const publicMemorialPhoto = document.getElementById('public-memorial-photo');
 const publicMemorialName = document.getElementById('public-memorial-name');
 const publicMemorialDates = document.getElementById('public-memorial-dates');
 const publicMemorialBio = document.getElementById('public-memorial-bio');
-// const editRequestBtn = document.getElementById('edit-request-btn'); // Botón eliminado visualmente con CSS
+// Botón 'editRequestBtn' eliminado del HTML y JS
 
 // Panel Admin
 const adminLogoutBtn = document.getElementById('admin-logout-btn');
@@ -79,12 +84,16 @@ const editPhotoInput = document.getElementById('edit-memorial-photo');
 const editError = document.getElementById('edit-error');
 const editSuccess = document.getElementById('edit-success');
 const editSubmitBtn = document.getElementById('edit-submit-btn');
-const closeModalBtn = document.querySelector('.close-modal-btn');
+const closeModalBtn = document.querySelector('#edit-modal .close-modal-btn'); // Más específico
 // Referencias para QR en Modal Edición
 const modalMemorialIdDisplay = document.getElementById('edit-modal-memorial-id-display');
 const modalMemorialUrlSpan = document.getElementById('edit-modal-memorial-url');
 const modalQrCodeDiv = document.getElementById('edit-modal-qr-code');
 
+// Modales Legales
+const termsModal = document.getElementById('terms-modal');
+const privacyModal = document.getElementById('privacy-modal');
+const closeModalButtons = document.querySelectorAll('.close-legal-modal-btn');
 
 // Vista Error
 const errorMessage = document.getElementById('error-message');
@@ -116,16 +125,18 @@ function showView(viewId) {
         });
         if (qrResultDiv) qrResultDiv.style.display = 'none'; // Ocultar resultado QR
         if (editModal && viewId !== 'admin-panel-view') {
-            editModal.style.display = 'none'; // Ocultar modal si no estamos en admin
+            editModal.style.display = 'none'; // Ocultar modal de edición si no estamos en admin
             currentEditingMemorialData = null; // Limpiar datos si se cierra el modal
         }
+         // Ocultar modales legales al cambiar de vista principal
+         if (termsModal) termsModal.style.display = 'none';
+         if (privacyModal) privacyModal.style.display = 'none';
     } else {
         console.error("Vista no encontrada:", viewId);
         showError("Error interno: No se pudo mostrar la pantalla solicitada.");
     }
 }
 
-// Muestra el mensaje en el elemento de error especificado
 function showInlineError(element, message) {
     if (element) {
         element.textContent = message;
@@ -135,7 +146,6 @@ function showInlineError(element, message) {
     }
 }
 
-// Muestra el mensaje en el elemento de éxito especificado
 function showInlineSuccess(element, message) {
      if (element) {
         element.textContent = message;
@@ -144,7 +154,6 @@ function showInlineSuccess(element, message) {
         console.warn("Elemento de éxito no encontrado para mensaje:", message);
     }
 }
-
 
 function showError(message = "Ocurrió un error inesperado.") {
     console.error("Error mostrado:", message);
@@ -158,7 +167,6 @@ function showError(message = "Ocurrió un error inesperado.") {
 }
 
 function generateShortId(length = 8) {
-    // Caracteres amigables, evitando O, 0, I, l
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
@@ -167,122 +175,89 @@ function generateShortId(length = 8) {
     return result;
 }
 
-// Función para subir imagen a Cloudinary (reutilizada)
 async function uploadImageToCloudinary(file) {
     const maxSizeMB = 5;
-    if (file.size > maxSizeMB * 1024 * 1024) {
-         throw new Error(`La imagen es muy grande (máx ${maxSizeMB} MB)`);
-    }
+    if (file.size > maxSizeMB * 1024 * 1024) { throw new Error(`La imagen es muy grande (máx ${maxSizeMB} MB)`); }
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-     if (!allowedTypes.includes(file.type)) {
-         throw new Error('Formato de imagen no válido (solo JPG, PNG, GIF, WEBP)');
-     }
-
+    if (!allowedTypes.includes(file.type)) { throw new Error('Formato de imagen no válido (solo JPG, PNG, GIF, WEBP)'); }
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
     console.log(`Subiendo ${file.name} a Cloudinary...`);
     try {
         const response = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
         const data = await response.json();
         if (!response.ok || data.error) {
             const errorMsg = data?.error?.message || `Error HTTP ${response.status}`;
-            console.error('Error Cloudinary:', data);
-            throw new Error(`Cloudinary: ${errorMsg}`);
+            console.error('Error Cloudinary:', data); throw new Error(`Cloudinary: ${errorMsg}`);
         }
         console.log('Respuesta Cloudinary:', data);
-        if (!data.secure_url) {
-            throw new Error('Cloudinary no devolvió una URL segura.');
-        }
+        if (!data.secure_url) { throw new Error('Cloudinary no devolvió una URL segura.'); }
         return data.secure_url;
     } catch (error) {
-        console.error("Error en fetch a Cloudinary:", error);
-        throw new Error(error.message || 'Error de red al subir imagen.');
+        console.error("Error en fetch a Cloudinary:", error); throw new Error(error.message || 'Error de red al subir imagen.');
     }
 }
 
 function formatDates(dob, dod) {
     let dateString = "";
-    // Formatear fechas si existen
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
         try {
-            // Intentar crear un objeto Date para asegurar validez mínima
-            // y formatear a DD/MM/AAAA
             const [year, month, day] = dateStr.split('-');
-            if (!year || !month || !day || year.length !== 4 || month.length !== 2 || day.length !== 2) return dateStr; // Devolver como está si no es AAAA-MM-DD
+            if (!year || !month || !day || year.length !== 4 || month.length !== 2 || day.length !== 2) return dateStr;
             return `${day}/${month}/${year}`;
-        } catch (e) {
-            return dateStr; // Devolver como está si hay error
-        }
+        } catch (e) { return dateStr; }
     };
-
     const formattedDob = formatDate(dob);
     const formattedDod = formatDate(dod);
-
     if (formattedDob) dateString += `Nacimiento: ${formattedDob}`;
     if (formattedDob && formattedDod) dateString += " | ";
     if (formattedDod) dateString += `Fallecimiento: ${formattedDod}`;
     return dateString || "Fechas no especificadas";
 }
 
-
 // ===========================================
 // LÓGICA DE RUTEO Y ESTADO
 // ===========================================
 
-// Decide qué vista mostrar basado en el estado de login y el hash de la URL
 function handleRouting() {
     console.log(`Handle Routing: isAdmin=${isAdmin}, currentMemorialId=${currentMemorialId}`);
-
-    // Limpiar mensajes de error/éxito residuales antes de mostrar nueva vista
-    [registerError, loginError, editError, editSuccess, errorMessage].forEach(el => {
-            if (el) {
-                 el.textContent = '';
-                 el.style.display = 'none';
-             }
-        });
+    // Limpiar errores aquí es redundante porque showView ya lo hace.
+    // [registerError, loginError, editError, editSuccess, errorMessage].forEach(el => { if (el) { el.textContent = ''; el.style.display = 'none'; } });
 
     if (isAdmin) {
         showView('admin-panel-view');
-        // Cargar contenido del panel de admin
         loadAdminMemorials();
-        // Ocultar enlace de login admin
-        if(adminLoginLinkContainer) adminLoginLinkContainer.style.display = 'none';
+        if (adminLoginLinkContainer) adminLoginLinkContainer.style.display = 'none';
     } else if (currentMemorialId) {
-        // Hay un ID en la URL, verificar si existe el memorial
         checkMemorialExists(currentMemorialId);
-         if(adminLoginLinkContainer) adminLoginLinkContainer.style.display = 'inline'; // Mostrar link por si quiere loguear
+        if (adminLoginLinkContainer) adminLoginLinkContainer.style.display = 'inline';
     } else {
-        // No hay ID y no es admin -> mostrar login de admin
+        // Si no es admin y no hay ID, siempre mostrar el login de admin
         showView('admin-login-view');
-         // Mostrar enlace de login admin
-        if(adminLoginLinkContainer) adminLoginLinkContainer.style.display = 'inline';
+        if (adminLoginLinkContainer) adminLoginLinkContainer.style.display = 'inline';
     }
 }
 
-// Listener para cambios en el estado de autenticación
 auth.onAuthStateChanged(user => {
     currentUser = user;
-    isAdmin = !!(user && user.email === ADMIN_EMAIL); // Es admin si está logueado Y es el email correcto
+    isAdmin = !!(user && user.email === ADMIN_EMAIL);
     console.log("Auth state changed. User:", user, "Is Admin:", isAdmin);
-    parseUrlHash(); // Revisar el hash actual al cambiar auth
-    handleRouting(); // Decidir qué mostrar
+    parseUrlHash();
+    handleRouting();
 });
 
-// Listener para cambios en el hash de la URL (cuando se escanea QR o se navega)
 window.addEventListener('hashchange', () => {
     console.log("Hash changed:", window.location.hash);
     parseUrlHash();
     handleRouting();
 });
 
-// Función para extraer el ID del hash
 function parseUrlHash() {
-    const hash = window.location.hash; // Ejemplo: #m/XYZ123
+    const hash = window.location.hash;
     if (hash && hash.startsWith('#' + MEMORIAL_SEGMENT)) {
-        currentMemorialId = hash.substring(MEMORIAL_SEGMENT.length + 1); // Extrae XYZ123
+        currentMemorialId = hash.substring(MEMORIAL_SEGMENT.length + 1);
         console.log("Memorial ID parsed from hash:", currentMemorialId);
     } else {
         currentMemorialId = null;
@@ -296,25 +271,24 @@ function parseUrlHash() {
 
 async function checkMemorialExists(memorialId) {
     if (!memorialId) {
-        handleRouting(); // Volver a decidir ruta si no hay ID
+        handleRouting();
         return;
     }
     showView('loading-view');
     try {
         const docRef = db.collection('memorials').doc(memorialId);
         const docSnap = await docRef.get();
-
-        // CORREGIDO: Usar .exists como propiedad booleana en v8
         if (docSnap.exists) {
             console.log("Memorial encontrado:", memorialId);
             populateMemorialView(docSnap.data());
             showView('memorial-view');
         } else {
             console.log("Memorial NO encontrado, mostrando registro para:", memorialId);
-            // Limpiar formulario por si acaso
-            if (registerForm) registerForm.reset();
-            if (photoPreview) photoPreview.innerHTML = '';
-            // No es necesario limpiar registerError aquí, showView lo hace.
+            if (registerForm) registerForm.reset(); // Limpiar form
+            if (photoPreview) photoPreview.innerHTML = ''; // Limpiar preview
+            if (acceptTermsCheckbox) acceptTermsCheckbox.checked = false;
+            if (acceptPrivacyCheckbox) acceptPrivacyCheckbox.checked = false;
+            checkAcceptance(); // Asegurar botón deshabilitado
             showView('register-view');
         }
     } catch (error) {
@@ -329,7 +303,6 @@ function populateMemorialView(data) {
     publicMemorialPhoto.onerror = () => { publicMemorialPhoto.src = PLACEHOLDER_IMAGE; };
     publicMemorialName.textContent = data.name || 'Nombre no disponible';
     publicMemorialDates.textContent = formatDates(data.dob, data.dod);
-    // Usar textContent para seguridad y pre-wrap en CSS para formato
     publicMemorialBio.textContent = data.bio || 'Sin biografía.';
 }
 
@@ -349,7 +322,59 @@ if (registerPhotoInput) {
     });
 }
 
-// Listener para el formulario de registro
+// --- Lógica de Aceptación Legal ---
+function checkAcceptance() {
+    if (acceptTermsCheckbox && acceptPrivacyCheckbox && registerSubmitBtn) {
+        registerSubmitBtn.disabled = !(acceptTermsCheckbox.checked && acceptPrivacyCheckbox.checked);
+    }
+}
+
+// Añadir listeners a los checkboxes legales
+if (acceptTermsCheckbox) {
+    acceptTermsCheckbox.addEventListener('change', checkAcceptance);
+}
+if (acceptPrivacyCheckbox) {
+    acceptPrivacyCheckbox.addEventListener('change', checkAcceptance);
+}
+
+// Añadir listeners a los enlaces para mostrar modales legales
+function openLegalModal(modalElement) {
+    if (modalElement) {
+        modalElement.style.display = 'flex';
+    }
+}
+function closeLegalModal(modalElement) {
+     if (modalElement) {
+        modalElement.style.display = 'none';
+    }
+}
+if (showTermsLink && termsModal) {
+    showTermsLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        openLegalModal(termsModal);
+    });
+}
+if (showPrivacyLink && privacyModal) {
+    showPrivacyLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        openLegalModal(privacyModal);
+    });
+}
+closeModalButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const modalId = button.dataset.modalId;
+        const modalToClose = document.getElementById(modalId);
+        closeLegalModal(modalToClose);
+    });
+});
+// Cerrar modal legal si se hace clic fuera del contenido
+window.addEventListener('click', (event) => {
+    if (event.target === termsModal) { closeLegalModal(termsModal); }
+    if (event.target === privacyModal) { closeLegalModal(privacyModal); }
+    // No cerrar modal de edición al hacer clic fuera (ya tiene su propio listener más abajo)
+});
+
+// Listener para el formulario de registro (modificado para chequear aceptación)
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -358,17 +383,23 @@ if (registerForm) {
             return;
         }
 
-        const name = registerNameInput.value.trim();
-        const dob = registerDobInput.value;
-        const dod = registerDodInput.value;
-        const bio = registerBioInput.value.trim();
-        const photoFile = registerPhotoInput.files[0];
-
         // Limpiar error previo
         if (registerError) {
             registerError.textContent = '';
             registerError.style.display = 'none';
         }
+
+        // Verificar aceptación ANTES de continuar
+        if (!acceptTermsCheckbox || !acceptPrivacyCheckbox || !acceptTermsCheckbox.checked || !acceptPrivacyCheckbox.checked) {
+             showInlineError(registerError, "Debes aceptar los Términos y Condiciones y la Política de Privacidad para continuar.");
+             return; // Detener si no se aceptó
+        }
+
+        const name = registerNameInput.value.trim();
+        const dob = registerDobInput.value;
+        const dod = registerDodInput.value;
+        const bio = registerBioInput.value.trim();
+        const photoFile = registerPhotoInput.files[0];
 
         if (!name || !photoFile) {
             showInlineError(registerError, "El nombre y la foto son obligatorios.");
@@ -385,39 +416,33 @@ if (registerForm) {
 
             const memorialData = {
                 name: name,
-                dob: dob || null, // Guardar null si está vacío
+                dob: dob || null,
                 dod: dod || null,
                 bio: bio,
                 photoUrl: photoUrl,
+                acceptedTermsAt: firebase.firestore.FieldValue.serverTimestamp(), // Registrar aceptación
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                id: currentMemorialId // Guardar el ID también por si acaso
+                id: currentMemorialId
             };
 
             console.log("Guardando memorial en Firestore con ID:", currentMemorialId);
             await db.collection('memorials').doc(currentMemorialId).set(memorialData);
             console.log("Memorial guardado OK.");
 
-            populateMemorialView(memorialData); // Mostrar inmediatamente
+            populateMemorialView(memorialData);
             showView('memorial-view');
 
         } catch (error) {
             console.error("Error durante el registro:", error);
             showInlineError(registerError, `Error al guardar: ${error.message}`);
-            // No cambiar de vista, permitir al usuario corregir
-        } finally {
-            registerSubmitBtn.disabled = false;
+             // Rehabilitar botón solo si falla el guardado
+            checkAcceptance(); // Llama a checkAcceptance para rehabilitar si las condiciones se cumplen
             registerSubmitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Recuerdo';
         }
+        // No poner finally aquí para el botón, ya que si tiene éxito no queremos rehabilitarlo.
     });
 }
 
-// Botón "Solicitar Edición" (Eliminado)
-// El botón #edit-request-btn ahora se oculta con CSS. No necesitamos el listener.
-// if (editRequestBtn) {
-//     editRequestBtn.addEventListener('click', () => {
-//         alert("Para editar la información de este recuerdo, por favor contacta con Memoria Viva.");
-//     });
-// }
 
 // ===========================================
 // LÓGICA DE ADMINISTRACIÓN
@@ -429,94 +454,59 @@ if (adminLoginForm) {
         e.preventDefault();
         const email = adminEmailInput.value;
         const password = adminPasswordInput.value;
-
-        if (loginError) {
-            loginError.textContent = '';
-            loginError.style.display = 'none';
-        }
-
+        if (loginError) { loginError.textContent = ''; loginError.style.display = 'none'; }
         const loginButton = adminLoginForm.querySelector('button[type="submit"]');
         loginButton.disabled = true;
         loginButton.innerHTML = '<div class="spinner-btn"></div> Ingresando...';
-
         try {
             console.log("Intentando login admin...");
             await auth.signInWithEmailAndPassword(email, password);
             console.log("Login admin OK");
-            // onAuthStateChanged se encargará de llamar a handleRouting
-            // Limpiar campos después del intento (incluso si falla, onAuthStateChanged limpiará si tiene éxito)
             if (adminEmailInput) adminEmailInput.value = '';
             if (adminPasswordInput) adminPasswordInput.value = '';
         } catch (error) {
             console.error("Error de login admin:", error);
             showInlineError(loginError, "Email o contraseña incorrectos.");
-            // No cambiar de vista, el usuario sigue en login
         } finally {
              loginButton.disabled = false;
              loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Ingresar';
         }
     });
 }
-
 if (adminLogoutBtn) {
     adminLogoutBtn.addEventListener('click', async () => {
-        adminLogoutBtn.disabled = true; // Deshabilitar mientras se cierra sesión
-        try {
-            await auth.signOut();
-            console.log("Admin logout OK");
-            // onAuthStateChanged se encargará de llamar a handleRouting
-        } catch (error) {
-            console.error("Error al cerrar sesión:", error);
-            showError("No se pudo cerrar sesión."); // Mostrar error general
-        } finally {
-            // No es necesario rehabilitar aquí, onAuthStateChanged mostrará la vista correcta (login)
-        }
+        adminLogoutBtn.disabled = true;
+        try { await auth.signOut(); console.log("Admin logout OK"); }
+        catch (error) { console.error("Error al cerrar sesión:", error); showError("No se pudo cerrar sesión."); }
+        // No rehabilitar, la vista cambiará
     });
 }
-
-// Enlace para ir a la vista de login admin (si no está logueado)
 if (adminLoginLink) {
     adminLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
         if (!isAdmin) {
-            // Limpiar campos al hacer clic en el enlace
              if(adminEmailInput) adminEmailInput.value = '';
              if(adminPasswordInput) adminPasswordInput.value = '';
-             if(loginError) {
-                 loginError.textContent = '';
-                 loginError.style.display = 'none';
-             }
+             if(loginError) { loginError.textContent = ''; loginError.style.display = 'none'; }
             showView('admin-login-view');
         }
     });
 }
 
-
 // --- Generador de QR (Admin) ---
 if (generateQrBtn) {
     generateQrBtn.addEventListener('click', () => {
         const shortId = generateShortId();
-        // Usar el hash #m/ID
         const fullUrl = `${window.location.origin}${window.location.pathname}#${MEMORIAL_SEGMENT}${shortId}`;
-
         newMemorialIdCode.textContent = shortId;
         newMemorialUrlSpan.textContent = fullUrl;
-
-        // Limpiar QR anterior y generar nuevo
         adminQrCodeDisplay.innerHTML = '';
         try {
-             new QRCode(adminQrCodeDisplay, {
-                text: fullUrl,
-                width: 150,
-                height: 150,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H // Alta corrección, mejor para grabar
-            });
+             new QRCode(adminQrCodeDisplay, { text: fullUrl, width: 150, height: 150, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
              qrResultDiv.style.display = 'block';
         } catch (e) {
             console.error("Error al generar QR:", e);
-            qrResultDiv.innerHTML = '<p class="error-message" style="display:block;">No se pudo generar QR.</p>'; // Mostrar error inline
+            qrResultDiv.innerHTML = '<p class="error-message" style="display:block;">No se pudo generar QR.</p>';
             qrResultDiv.style.display = 'block';
         }
     });
@@ -524,27 +514,20 @@ if (generateQrBtn) {
 
 // --- Cargar y Mostrar Lista de Memoriales (Admin) ---
 async function loadAdminMemorials() {
-    if (!isAdmin) return; // Seguridad extra
+    if (!isAdmin) return;
     adminMemorialsListDiv.innerHTML = '<div class="spinner"></div> Cargando lista...';
-
     try {
-        // Ordenar por fecha de creación descendente (los más nuevos primero)
         const querySnapshot = await db.collection('memorials').orderBy('createdAt', 'desc').get();
         if (querySnapshot.empty) {
             adminMemorialsListDiv.innerHTML = '<p>No hay memoriales registrados todavía.</p>';
             return;
         }
-
         let listHtml = '';
         querySnapshot.forEach(doc => {
             const data = doc.data();
             const memorialId = doc.id;
             const createdAtDate = data.createdAt?.toDate();
-            // Formatear fecha de creación para mostrarla
-            const createdAtString = createdAtDate
-                ? createdAtDate.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
-                : 'Fecha desconocida';
-
+            const createdAtString = createdAtDate ? createdAtDate.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'Fecha desconocida';
             listHtml += `
                 <div class="memorial-list-item" data-id="${memorialId}">
                     <div class="memorial-item-info">
@@ -559,19 +542,14 @@ async function loadAdminMemorials() {
             `;
         });
         adminMemorialsListDiv.innerHTML = listHtml;
-
-        // Añadir listeners a los botones recién creados
         attachAdminListActionListeners();
-
     } catch (error) {
         console.error("Error cargando lista de memoriales:", error);
-        adminMemorialsListDiv.innerHTML = '<p class="error-message" style="display:block;">Error al cargar la lista.</p>'; // Mostrar error inline
+        adminMemorialsListDiv.innerHTML = '<p class="error-message" style="display:block;">Error al cargar la lista.</p>';
     }
 }
-
 function attachAdminListActionListeners() {
     document.querySelectorAll('.edit-btn').forEach(button => {
-        // Remover listener anterior para evitar duplicados si se recarga
         button.removeEventListener('click', handleEditClick);
         button.addEventListener('click', handleEditClick);
     });
@@ -583,35 +561,26 @@ function attachAdminListActionListeners() {
 
 // --- Editar Memorial (Admin) ---
 async function handleEditClick(event) {
-    const memorialId = event.currentTarget.dataset.id;
-    if (!memorialId) return;
-
-    // Opcional: Mostrar un spinner en el botón clickeado?
-    showView('loading-view'); // Mostrar carga general mientras se buscan datos
-
+    const memorialId = event.currentTarget.dataset.id; if (!memorialId) return;
+    showView('loading-view');
     try {
         const docRef = db.collection('memorials').doc(memorialId);
         const docSnap = await docRef.get();
-
-        // CORREGIDO: Usar .exists como propiedad en v8
         if (docSnap.exists) {
             currentEditingMemorialData = { id: docSnap.id, ...docSnap.data() };
             populateEditModal(currentEditingMemorialData);
-            editModal.style.display = 'flex'; // Mostrar modal
-            showView('admin-panel-view'); // Asegurarse que la vista de fondo sea la correcta
+            editModal.style.display = 'flex';
+            showView('admin-panel-view');
         } else {
-            showError("No se encontró el memorial para editar."); // Error general
-            showView('admin-panel-view'); // Volver al panel si no se encuentra
-            loadAdminMemorials(); // Recargar lista por si acaso
+            showError("No se encontró el memorial para editar.");
+            showView('admin-panel-view'); loadAdminMemorials();
         }
     } catch (error) {
         console.error("Error al cargar datos para editar:", error);
         showError(`Error al cargar memorial ${memorialId}: ${error.message}`);
-         showView('admin-panel-view'); // Volver al panel si hay error
-         loadAdminMemorials(); // Recargar lista
+        showView('admin-panel-view'); loadAdminMemorials();
     }
 }
-
 function populateEditModal(data) {
     editMemorialIdInput.value = data.id;
     editNameInput.value = data.name || '';
@@ -620,196 +589,76 @@ function populateEditModal(data) {
     editBioInput.value = data.bio || '';
     currentMemorialPhoto.src = data.photoUrl || PLACEHOLDER_IMAGE;
     currentMemorialPhoto.onerror = () => { currentMemorialPhoto.src = PLACEHOLDER_IMAGE; };
-    editPhotoInput.value = null; // Limpiar input de archivo
-
-    // Limpiar mensajes previos
+    editPhotoInput.value = null;
     if (editError) { editError.textContent = ''; editError.style.display = 'none'; }
     if (editSuccess) { editSuccess.textContent = ''; editSuccess.style.display = 'none'; }
-
-
-    // --- Código para mostrar ID, URL y QR en Modal ---
     const memorialId = data.id;
     const fullUrl = `${window.location.origin}${window.location.pathname}#${MEMORIAL_SEGMENT}${memorialId}`;
-
     if (modalMemorialIdDisplay) modalMemorialIdDisplay.textContent = memorialId;
     if (modalMemorialUrlSpan) modalMemorialUrlSpan.textContent = fullUrl;
-
     if (modalQrCodeDiv) {
-        modalQrCodeDiv.innerHTML = ''; // Limpiar QR anterior
-        try {
-            new QRCode(modalQrCodeDiv, {
-                text: fullUrl,
-                width: 120, // Un poco más pequeño para el modal
-                height: 120,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-        } catch (e) {
-            console.error("Error generando QR en modal:", e);
-            modalQrCodeDiv.innerHTML = '<p class="error-message" style="font-size:0.8em; display:block;">Error QR</p>';
-        }
+        modalQrCodeDiv.innerHTML = '';
+        try { new QRCode(modalQrCodeDiv, { text: fullUrl, width: 120, height: 120, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });}
+        catch (e) { console.error("Error generando QR en modal:", e); modalQrCodeDiv.innerHTML = '<p class="error-message" style="font-size:0.8em; display:block;">Error QR</p>'; }
     }
-    // --- Fin del código QR/URL ---
 }
-
-// Listeners para cerrar el modal
-if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', () => {
-        editModal.style.display = 'none';
-        currentEditingMemorialData = null; // Limpiar datos en edición
-    });
-}
+// Listener para cerrar modal de EDICIÓN (diferente a los legales)
+if (closeModalBtn) { closeModalBtn.addEventListener('click', () => { editModal.style.display = 'none'; currentEditingMemorialData = null; }); }
 window.addEventListener('click', (event) => {
-    // Cerrar si se hace clic directamente en el fondo del modal
-    if (event.target === editModal) {
-        editModal.style.display = 'none';
-        currentEditingMemorialData = null;
-    }
+    if (event.target === editModal) { editModal.style.display = 'none'; currentEditingMemorialData = null; }
+    // Listener para modales legales ya está definido antes
 });
-
-// Listener para guardar cambios de edición
 if (editForm) {
     editForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!currentEditingMemorialData) {
-            console.error("No hay datos de memorial en edición.");
-            showInlineError(editError, "Error interno: No se pueden guardar los cambios.");
-            return;
-        }
-
-        const memorialId = editMemorialIdInput.value;
-        if (!memorialId) {
-             showInlineError(editError, "Error interno: Falta ID del memorial.");
-             return;
-        }
-
-        const newName = editNameInput.value.trim();
-        const newDob = editDobInput.value;
-        const newDod = editDodInput.value;
-        const newBio = editBioInput.value.trim();
-        const newPhotoFile = editPhotoInput.files[0];
-
-        // Limpiar mensajes previos
-         if (editError) { editError.textContent = ''; editError.style.display = 'none'; }
-         if (editSuccess) { editSuccess.textContent = ''; editSuccess.style.display = 'none'; }
-
-
-        if (!newName) {
-             showInlineError(editError, "El nombre es obligatorio.");
-            return;
-        }
-
-        editSubmitBtn.disabled = true;
-        editSubmitBtn.innerHTML = '<div class="spinner-btn"></div> Guardando...';
-
+        e.preventDefault(); if (!currentEditingMemorialData) { console.error("No hay datos de memorial en edición."); showInlineError(editError, "Error interno: No se pueden guardar los cambios."); return; }
+        const memorialId = editMemorialIdInput.value; if (!memorialId) { showInlineError(editError, "Error interno: Falta ID del memorial."); return; }
+        const newName = editNameInput.value.trim(); const newDob = editDobInput.value; const newDod = editDodInput.value; const newBio = editBioInput.value.trim(); const newPhotoFile = editPhotoInput.files[0];
+        if (editError) { editError.textContent = ''; editError.style.display = 'none'; } if (editSuccess) { editSuccess.textContent = ''; editSuccess.style.display = 'none'; }
+        if (!newName) { showInlineError(editError, "El nombre es obligatorio."); return; }
+        editSubmitBtn.disabled = true; editSubmitBtn.innerHTML = '<div class="spinner-btn"></div> Guardando...';
         try {
-            let photoUrl = currentEditingMemorialData.photoUrl; // Mantener foto actual por defecto
-
-            if (newPhotoFile) {
-                console.log("Subiendo nueva foto para editar...");
-                photoUrl = await uploadImageToCloudinary(newPhotoFile);
-                console.log("Nueva foto subida OK:", photoUrl);
-            }
-
-            const updatedData = {
-                name: newName,
-                dob: newDob || null,
-                dod: newDod || null,
-                bio: newBio,
-                photoUrl: photoUrl, // URL nueva o la anterior
-                lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            console.log("Actualizando Firestore para ID:", memorialId);
-            await db.collection('memorials').doc(memorialId).update(updatedData);
-            console.log("Actualización OK.");
-
+            let photoUrl = currentEditingMemorialData.photoUrl;
+            if (newPhotoFile) { console.log("Subiendo nueva foto para editar..."); photoUrl = await uploadImageToCloudinary(newPhotoFile); console.log("Nueva foto subida OK:", photoUrl); }
+            const updatedData = { name: newName, dob: newDob || null, dod: newDod || null, bio: newBio, photoUrl: photoUrl, lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            console.log("Actualizando Firestore para ID:", memorialId); await db.collection('memorials').doc(memorialId).update(updatedData); console.log("Actualización OK.");
             showInlineSuccess(editSuccess, "¡Memorial actualizado con éxito!");
-            currentEditingMemorialData = { ...currentEditingMemorialData, ...updatedData }; // Actualizar datos locales
-            populateEditModal(currentEditingMemorialData); // Repoblar modal con datos actualizados (incluye QR)
-            loadAdminMemorials(); // Recargar lista en el panel
-
-        } catch (error) {
-            console.error("Error al actualizar:", error);
-             showInlineError(editError, `Error al guardar: ${error.message}`);
-        } finally {
-            editSubmitBtn.disabled = false;
-            editSubmitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
-        }
+            currentEditingMemorialData = { ...currentEditingMemorialData, ...updatedData };
+            populateEditModal(currentEditingMemorialData);
+            loadAdminMemorials();
+        } catch (error) { console.error("Error al actualizar:", error); showInlineError(editError, `Error al guardar: ${error.message}`);
+        } finally { editSubmitBtn.disabled = false; editSubmitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios'; }
     });
 }
-
 
 // --- Borrar Memorial (Admin) ---
 async function handleDeleteClick(event) {
-    const button = event.currentTarget;
-    const memorialId = button.dataset.id;
-    if (!memorialId) return;
-
-    // Intentar obtener el nombre desde el elemento padre
-    const listItem = button.closest('.memorial-list-item');
-    const nameElement = listItem ? listItem.querySelector('.memorial-item-info strong') : null;
-    const memorialName = nameElement ? nameElement.textContent : `ID ${memorialId}`;
-
-    // Usar un confirm más sobrio
+    const button = event.currentTarget; const memorialId = button.dataset.id; if (!memorialId) return;
+    const listItem = button.closest('.memorial-list-item'); const nameElement = listItem ? listItem.querySelector('.memorial-item-info strong') : null; const memorialName = nameElement ? nameElement.textContent : `ID ${memorialId}`;
     if (confirm(`Confirmar eliminación del memorial "${memorialName}".\n\nEsta acción es permanente.`)) {
-        // Deshabilitar botones temporalmente para evitar doble clic
-        button.disabled = true;
-        const editButton = listItem ? listItem.querySelector('.edit-btn') : null;
-        if(editButton) editButton.disabled = true;
-
-        // Opcional: Añadir un efecto visual de borrado
-        if (listItem) listItem.style.opacity = '0.5';
-
+        button.disabled = true; const editButton = listItem ? listItem.querySelector('.edit-btn') : null; if(editButton) editButton.disabled = true; if (listItem) listItem.style.opacity = '0.5';
         try {
-            console.log("Borrando memorial:", memorialId);
-            await db.collection('memorials').doc(memorialId).delete();
-            console.log("Borrado OK.");
-
-            // Quitar visualmente de la lista (más rápido que recargar todo)
-            if (listItem) {
-                listItem.remove();
-                 // Comprobar si la lista quedó vacía
-                 if (adminMemorialsListDiv && !adminMemorialsListDiv.querySelector('.memorial-list-item')) {
-                     adminMemorialsListDiv.innerHTML = '<p>No hay memoriales registrados todavía.</p>';
-                 }
-            } else {
-                loadAdminMemorials(); // Recargar si no se pudo quitar directamente
-            }
-             // Quizás no mostrar alert, el cambio visual es suficiente confirmación
-
+            console.log("Borrando memorial:", memorialId); await db.collection('memorials').doc(memorialId).delete(); console.log("Borrado OK.");
+            if (listItem) { listItem.remove(); if (adminMemorialsListDiv && !adminMemorialsListDiv.querySelector('.memorial-list-item')) { adminMemorialsListDiv.innerHTML = '<p>No hay memoriales registrados todavía.</p>'; } }
+            else { loadAdminMemorials(); }
         } catch (error) {
-            console.error("Error al borrar memorial:", error);
-            showError(`No se pudo borrar el memorial ${memorialId}: ${error.message}`); // Usar error general
-            // Restaurar botones y opacidad si falla
-            button.disabled = false;
-            if(editButton) editButton.disabled = false;
-            if (listItem) listItem.style.opacity = '1';
-            // Asegurarse de volver al panel admin después del error
-             showView('admin-panel-view');
-             loadAdminMemorials();
-
+            console.error("Error al borrar memorial:", error); showError(`No se pudo borrar el memorial ${memorialId}: ${error.message}`);
+            button.disabled = false; if(editButton) editButton.disabled = false; if (listItem) listItem.style.opacity = '1';
+             showView('admin-panel-view'); loadAdminMemorials();
         }
     }
 }
 
 // Botón "Volver al Inicio" en la vista de error
-if (backToStartBtn) {
-    backToStartBtn.addEventListener('click', () => {
-        window.location.hash = ''; // Limpiar hash
-        // handleRouting se llamará automáticamente por el cambio de hash y estado de auth
-    });
-}
-
+if (backToStartBtn) { backToStartBtn.addEventListener('click', () => { window.location.hash = ''; /* handleRouting se llama por hashchange */ }); }
 
 // ===========================================
 // INICIALIZACIÓN AL CARGAR LA PÁGINA
 // ===========================================
-
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Cargado. Iniciando aplicación Recuerdo...");
     parseUrlHash(); // Analizar hash inicial
-    // onAuthStateChanged se dispara automáticamente después de esto y llamará a handleRouting
+    // onAuthStateChanged se dispara automáticamente y llamará a handleRouting
     showView('loading-view'); // Empezar siempre mostrando carga
+    // Llamada inicial para asegurar estado correcto del botón de registro
+    checkAcceptance();
 });
